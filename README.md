@@ -12,3 +12,8 @@
 
 1. naive fasttext 调参作为baseline
 2. 去高频词，尝试LSTM、RNN
+
+## 提交记录
+
+<!--记录重要提交尝试的主要策略和修改-->
+
