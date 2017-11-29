@@ -14,6 +14,9 @@ flags.DEFINE_string('ori_train_file', '../data/train.csv', 'original train data 
 flags.DEFINE_string('ft_train_file', '../data/ft_train.txt', 'fasttext train data file')
 flags.DEFINE_string('ft_cv_file', '../data/ft_cv.txt', 'fasttext cv data file')
 flags.DEFINE_float('cv_percentage', 0.3, 'cross validation percentage')
+flags.DEFINE_string('fasttext_out_file', '../../../public/fastText/result/naive_ft.txt', 'fasttext output file')
+flags.DEFINE_string('test_file', '../data/test.csv', 'kaggle test file')
+flags.DEFINE_string('sub_file', '../data/sub.csv', 'kaggle submission file')
 
 # global
 author_dict = {"EAP":1, "HPL":2, "MWS":3}
@@ -45,9 +48,27 @@ def ori_input_to_fasttext():
         train_fout.writelines(train_lines)
         cv_fout.writelines(cv_lines)
 
+def fasttext_ouput_to_sub():
+    with open(FLAGS.fasttext_out_file, 'r') as f_fast, open(FLAGS.test_file, 'r') as f_tag, \
+        open(FLAGS.sub_file, 'w') as f_sub:
+        tag_lines = f_tag.readlines()
+        lines = f_fast.readlines()
+        assert len(tag_lines) == len(lines)
+        f_sub.write("id,EAP,HPL,MWS\n")
+        for i in range(len(lines)):
+            # get in sort
+            res_map = {}
+            fields = lines[i].split(' ')
+            for j in range(0, len(fields), 2):
+                res_map[fields[j]] = 1.0 if (float(fields[j + 1]) > 1.0) else float(fields[j + 1])
+            new_line = tag_lines[i].split(',')[0] + ',' + str(res_map["__label__1"]) + ',' + \
+                       str(res_map["__label__2"]) + ',' + str(res_map["__label__3"]) + '\n'
+            f_sub.write(new_line)
+
 def main(argv):
     del argv
-    ori_input_to_fasttext()
+    # ori_input_to_fasttext()
+    fasttext_ouput_to_sub()
 
 if __name__ == '__main__':
     app.run(main)
